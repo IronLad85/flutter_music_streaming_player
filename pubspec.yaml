@@ -1,0 +1,35 @@
+name: music_player
+description: 'A new Flutter project.'
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  audioplayers: ^6.0.0
+  flutter_mobx: ^2.2.0+2
+  firebase_core: ^2.28.0
+  firebase_auth: ^4.19.0
+  http: ^1.2.1
+  provider: ^6.1.2
+  mobx: ^2.3.3+2
+  flashy_tab_bar2: ^0.0.10
+  infinite_scroll_pagination: ^4.0.0
+  sliding_up_panel2: ^3.3.0+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  mobx_codegen: ^2.6.1
+  build_runner: ^2.4.9
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
