@@ -21,6 +21,12 @@ abstract class _AudioPlayerStore with Store {
   StreamSubscription<String>? _errorSubscription;
 
   @observable
+  Duration seekValue = Duration.zero;
+
+  @observable
+  bool isSeeking = false;
+
+  @observable
   Duration position = Duration.zero;
 
   @observable
@@ -32,6 +38,8 @@ abstract class _AudioPlayerStore with Store {
   @computed
   bool get isPlaying => playerState == PlayerState.playing;
 
+  AudioPlayer? get audioPlayer => _audioPlayer;
+
   @action
   Future play(Track track) async {
     currentPlayingTrack = track;
@@ -41,6 +49,11 @@ abstract class _AudioPlayerStore with Store {
     }
 
     await _audioPlayer!.play(UrlSource(track.audio));
+  }
+
+  @action
+  Future resume() async {
+    await _audioPlayer?.resume();
   }
 
   @action
@@ -56,7 +69,32 @@ abstract class _AudioPlayerStore with Store {
 
   @action
   Future seek(Duration newPosition) async {
-    await _audioPlayer?.seek(newPosition);
+    if (audioPlayer != null) {
+      switch (playerState) {
+        case PlayerState.completed:
+          await _audioPlayer?.play(
+            UrlSource(currentPlayingTrack!.audio),
+            position: newPosition,
+          );
+
+        case PlayerState.playing:
+          await _audioPlayer?.seek(newPosition);
+
+        case PlayerState.paused:
+          await _audioPlayer?.seek(newPosition);
+
+        default:
+      }
+    }
+  }
+
+  @action
+  Future setSeekValue(
+    Duration duration, {
+    bool isSeekingValue = false,
+  }) async {
+    isSeeking = isSeekingValue;
+    seekValue = duration;
   }
 
   @action
@@ -88,6 +126,9 @@ abstract class _AudioPlayerStore with Store {
     _positionSubscription =
         _audioPlayer!.onPositionChanged.listen((newPosition) {
       position = newPosition;
+      if (!isSeeking) {
+        setSeekValue(newPosition);
+      }
     });
 
     _playerStateSubscription =

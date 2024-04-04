@@ -1,15 +1,15 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:music_player/models/tracks.dart';
 import 'package:music_player/store/main_store.dart';
+import 'package:music_player/widgets/tracks/track_icon_widgets.dart';
+import 'package:music_player/widgets/tracks/track_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 
 class BottomPanel extends StatelessWidget {
-  final PanelController _controller;
-
-  BottomPanel({required PanelController controller}) : _controller = controller;
+  final PanelController controller;
+  const BottomPanel({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -17,97 +17,60 @@ class BottomPanel extends StatelessWidget {
 
     return Observer(builder: (context) {
       Track? track = mainStore.audioPlayerStore.currentPlayingTrack;
-      PlayerState playerState = mainStore.audioPlayerStore.playerState;
-      return _buildBottomPanel(track, playerState, mainStore);
+      bool isPlaying = mainStore.audioPlayerStore.isPlaying;
+      return _buildBottomPanel(track, isPlaying, mainStore);
     });
   }
 
-  Widget _buildBottomPanel(
-      Track? track, PlayerState playerState, MainStore mainStore) {
+  Widget _buildBottomPanel(Track? track, bool isPlaying, MainStore mainStore) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Flexible(
-                flex: 2,
-                child: _buildPlayPauseButton(track, playerState),
-              ),
-              Flexible(
-                flex: 8,
-                child: _buildSongInfo(track),
-              ),
-              Flexible(
-                flex: 1,
-                child: GestureDetector(
-                  onTap: () => _controller.open(),
-                  child: const ShowIcon(color: Colors.white),
-                ),
+              _buildPlayPauseButton(track, isPlaying, mainStore),
+              Expanded(child: _buildSongInfo(track)),
+              GestureDetector(
+                onTap: () => controller.open(),
+                child: const ShowIcon(color: Colors.white),
               ),
             ],
           ),
-          Observer(builder: (context) {
-            Duration position = mainStore.audioPlayerStore.position;
-            Duration duration = mainStore.audioPlayerStore.duration;
-
-            if (playerState == PlayerState.stopped) {
-              return Slider(
-                value: 0,
-                onChanged: (value) {},
-                activeColor: Colors.transparent,
-                inactiveColor: Colors.transparent,
-              );
-            }
-
-            return Slider(
-              min: 0,
-              max: duration.inMilliseconds.toDouble(),
-              value: position.inMilliseconds.toDouble(),
-              onChangeStart: (value) {
-                // _globalBloc.musicPlayerBloc.invertSeekingState();
-              },
-              onChanged: (value) {
-                // _globalBloc.musicPlayerBloc
-                //     .updatePosition(Duration(milliseconds: value.toInt()));
-              },
-              onChangeEnd: (value) {
-                // _globalBloc.musicPlayerBloc.invertSeekingState();
-                // _globalBloc.musicPlayerBloc.audioSeek(value / 1000);
-                mainStore.audioPlayerStore.seek(
-                  Duration(milliseconds: value.toInt()),
-                );
-              },
-              activeColor: Colors.white,
-              inactiveColor: Colors.white.withOpacity(0.5),
-            );
-          }),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 5, top: 5),
+            child: TrackSlider(),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPlayPauseButton(Track? track, PlayerState playerState) {
+  Widget _buildPlayPauseButton(
+    Track? track,
+    bool isPlaying,
+    MainStore mainStore,
+  ) {
     return GestureDetector(
       onTap: () {
         if (track == null) {
           return;
         }
 
-        if (PlayerState.paused == playerState) {
-          // Play Music
+        if (isPlaying) {
+          mainStore.audioPlayerStore.pause();
         } else {
-          // Pause Music
+          mainStore.audioPlayerStore.resume();
         }
       },
       child: Container(
-        width: double.infinity,
         alignment: Alignment.centerLeft,
-        child: playerState == PlayerState.playing
+        child: isPlaying
             ? const PauseIcon(color: Colors.white)
-            : PlayIcon(color: Colors.white),
+            : const PlayIcon(color: Colors.white),
       ),
     );
   }
@@ -122,6 +85,7 @@ class BottomPanel extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Text(
             track.name,
@@ -145,130 +109,6 @@ class BottomPanel extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class PlayIcon extends StatelessWidget {
-  final Color _color;
-
-  PlayIcon({required Color color}) : _color = color;
-
-  @override
-  Widget build(BuildContext context) {
-    final double _radius = 55;
-    return Container(
-      width: _radius,
-      height: _radius,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        border: Border.all(
-          color: _color,
-        ),
-        borderRadius: BorderRadius.circular(
-          _radius,
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.play_arrow,
-          color: _color,
-          size: 32.0,
-        ),
-      ),
-    );
-  }
-}
-
-class PauseIcon extends StatelessWidget {
-  final Color _color;
-
-  const PauseIcon({super.key, required Color color}) : _color = color;
-
-  @override
-  Widget build(BuildContext context) {
-    const double radius = 55;
-    return Container(
-      width: radius,
-      height: radius,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        border: Border.all(
-          color: _color,
-        ),
-        borderRadius: BorderRadius.circular(
-          radius,
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.pause,
-          color: _color,
-          size: 32.0,
-        ),
-      ),
-    );
-  }
-}
-
-class ShowIcon extends StatelessWidget {
-  final Color _color;
-
-  const ShowIcon({super.key, required Color color}) : _color = color;
-
-  @override
-  Widget build(BuildContext context) {
-    const double radius = 32;
-    return Container(
-      width: radius,
-      height: radius,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        border: Border.all(
-          color: _color,
-        ),
-        borderRadius: BorderRadius.circular(
-          radius,
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.keyboard_arrow_up,
-          color: _color,
-          size: 22.0,
-        ),
-      ),
-    );
-  }
-}
-
-class HideIcon extends StatelessWidget {
-  final Color _color;
-
-  const HideIcon({super.key, required Color color}) : _color = color;
-
-  @override
-  Widget build(BuildContext context) {
-    const double radius = 32;
-    return Container(
-      width: radius,
-      height: radius,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        border: Border.all(
-          color: _color,
-        ),
-        borderRadius: BorderRadius.circular(
-          radius,
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.keyboard_arrow_down,
-          color: _color,
-          size: 22.0,
-        ),
       ),
     );
   }

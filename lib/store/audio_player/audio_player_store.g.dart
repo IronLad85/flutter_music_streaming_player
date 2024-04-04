@@ -33,6 +33,38 @@ mixin _$AudioPlayerStore on _AudioPlayerStore, Store {
     });
   }
 
+  late final _$seekValueAtom =
+      Atom(name: '_AudioPlayerStore.seekValue', context: context);
+
+  @override
+  Duration get seekValue {
+    _$seekValueAtom.reportRead();
+    return super.seekValue;
+  }
+
+  @override
+  set seekValue(Duration value) {
+    _$seekValueAtom.reportWrite(value, super.seekValue, () {
+      super.seekValue = value;
+    });
+  }
+
+  late final _$isSeekingAtom =
+      Atom(name: '_AudioPlayerStore.isSeeking', context: context);
+
+  @override
+  bool get isSeeking {
+    _$isSeekingAtom.reportRead();
+    return super.isSeeking;
+  }
+
+  @override
+  set isSeeking(bool value) {
+    _$isSeekingAtom.reportWrite(value, super.isSeeking, () {
+      super.isSeeking = value;
+    });
+  }
+
   late final _$positionAtom =
       Atom(name: '_AudioPlayerStore.position', context: context);
 
@@ -89,6 +121,14 @@ mixin _$AudioPlayerStore on _AudioPlayerStore, Store {
     return _$playAsyncAction.run(() => super.play(track));
   }
 
+  late final _$resumeAsyncAction =
+      AsyncAction('_AudioPlayerStore.resume', context: context);
+
+  @override
+  Future<dynamic> resume() {
+    return _$resumeAsyncAction.run(() => super.resume());
+  }
+
   late final _$pauseAsyncAction =
       AsyncAction('_AudioPlayerStore.pause', context: context);
 
@@ -113,6 +153,16 @@ mixin _$AudioPlayerStore on _AudioPlayerStore, Store {
     return _$seekAsyncAction.run(() => super.seek(newPosition));
   }
 
+  late final _$setSeekValueAsyncAction =
+      AsyncAction('_AudioPlayerStore.setSeekValue', context: context);
+
+  @override
+  Future<dynamic> setSeekValue(Duration duration,
+      {bool isSeekingValue = false}) {
+    return _$setSeekValueAsyncAction.run(
+        () => super.setSeekValue(duration, isSeekingValue: isSeekingValue));
+  }
+
   late final _$disposeAsyncAction =
       AsyncAction('_AudioPlayerStore.dispose', context: context);
 
@@ -125,6 +175,8 @@ mixin _$AudioPlayerStore on _AudioPlayerStore, Store {
   String toString() {
     return '''
 currentPlayingTrack: ${currentPlayingTrack},
+seekValue: ${seekValue},
+isSeeking: ${isSeeking},
 position: ${position},
 duration: ${duration},
 playerState: ${playerState},

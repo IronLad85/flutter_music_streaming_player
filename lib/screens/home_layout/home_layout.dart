@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:music_player/models/tracks.dart';
 import 'package:music_player/screens/home_layout/tracks_list.dart';
+import 'package:music_player/screens/track_details/track_details_page.dart';
 import 'package:music_player/services/music_service.dart';
 import 'package:music_player/store/main_store.dart';
 import 'package:music_player/widgets/bottom_panel.dart';
@@ -95,9 +96,7 @@ class _HomeLayoutState extends State<HomeLayout>
         topLeft: Radius.circular(25),
         topRight: Radius.circular(25),
       ),
-      child: Container(color: Colors.red),
-
-      // child: NowPlayingScreen(controller: _panelController),
+      child: NowPlayingScreen(controller: _panelController),
     );
   }
 

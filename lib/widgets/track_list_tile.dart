@@ -16,11 +16,17 @@ class TrackListTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: Container(
           color: Colors.grey.shade300,
-          child: Image.network(
-            track.albumImage,
-            width: 70,
-            height: 70,
-          ),
+          child: Builder(builder: (context) {
+            if (track.albumImage == null) {
+              return Container();
+            }
+
+            return Image.network(
+              track.albumImage!,
+              width: 70,
+              height: 70,
+            );
+          }),
         ),
       ),
     );

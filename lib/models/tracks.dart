@@ -10,7 +10,7 @@ class Track {
   final String licenseCcurl;
   final int position;
   final String releasedate;
-  final String albumImage;
+  final String? albumImage;
   final String audio;
   final String audiodownload;
   final String prourl;
