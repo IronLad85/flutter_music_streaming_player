@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:music_player/utils/theme_data.dart';
 import 'package:music_player/utils/validator.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -12,114 +13,24 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
+  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  AutovalidateMode _autoValidate = AutovalidateMode.onUserInteraction;
   bool _isLoading = false;
+  AutovalidateMode _autoValidate = AutovalidateMode.disabled;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Form(
-        key: _formKey,
-        autovalidateMode: _autoValidate,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              _buildLogo(),
-              const SizedBox(height: 48.0),
-              _buildFirstNameField(),
-              const SizedBox(height: 24.0),
-              _buildLastNameField(),
-              const SizedBox(height: 24.0),
-              _buildEmailField(),
-              const SizedBox(height: 24.0),
-              _buildPasswordField(),
-              const SizedBox(height: 12.0),
-              _buildSignUpButton(),
-              _buildSignInLabel()
-            ],
-          ),
-        ),
+  InputDecoration _inputDecoration(IconData icon, String hintText) {
+    return InputDecoration(
+      prefixIcon: Padding(
+        padding: const EdgeInsets.only(left: 5.0),
+        child: Icon(icon, color: Colors.grey),
       ),
+      hintText: hintText,
+      contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
     );
   }
-
-  Widget _buildLogo() {
-    return Image.asset(
-      'assets/app_logo.png',
-      fit: BoxFit.contain,
-      height: 120.0,
-    );
-  }
-
-  TextFormField _buildFirstNameField() => TextFormField(
-        autofocus: false,
-        textCapitalization: TextCapitalization.words,
-        controller: _firstNameController,
-        validator: Validator.validateName,
-        decoration: _inputDecoration(Icons.person, 'First Name'),
-      );
-
-  TextFormField _buildLastNameField() => TextFormField(
-        autofocus: false,
-        textCapitalization: TextCapitalization.words,
-        controller: _lastNameController,
-        validator: Validator.validateName,
-        decoration: _inputDecoration(Icons.person, 'Last Name'),
-      );
-
-  TextFormField _buildEmailField() => TextFormField(
-        keyboardType: TextInputType.emailAddress,
-        autofocus: false,
-        controller: _emailController,
-        validator: Validator.validateEmail,
-        decoration: _inputDecoration(Icons.email, 'Email'),
-      );
-
-  TextFormField _buildPasswordField() => TextFormField(
-        obscureText: true,
-        controller: _passwordController,
-        validator: Validator.validatePassword,
-        decoration: _inputDecoration(Icons.lock, 'Password'),
-      );
-
-  Padding _buildSignUpButton() => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            padding: const EdgeInsets.all(12),
-          ),
-          onPressed: _emailSignUp,
-          child: const Text('SIGN UP', style: TextStyle(color: Colors.white)),
-        ),
-      );
-
-  Widget _buildSignInLabel() => TextButton(
-        child: const Text('Have an Account? Sign In.',
-            style: TextStyle(color: Colors.black54)),
-        onPressed: () => Navigator.pushNamed(context, '/signin'),
-      );
-
-  InputDecoration _inputDecoration(IconData icon, String hintText) =>
-      InputDecoration(
-        prefixIcon: Padding(
-          padding: const EdgeInsets.only(left: 5.0),
-          child: Icon(icon, color: Colors.grey),
-        ),
-        hintText: hintText,
-        contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-      );
 
   void _changeLoadingVisible() {
     setState(() => _isLoading = !_isLoading);
@@ -134,12 +45,154 @@ class _SignUpPageState extends State<SignUpPage> {
           password: _passwordController.text,
         );
         _changeLoadingVisible();
-        Navigator.pushReplacementNamed(context, '/');
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/');
+        }
       } catch (e) {
         print("Sign Up Error: $e");
       }
     } else {
       setState(() => _autoValidate = AutovalidateMode.always);
     }
+  }
+
+  void _showSnackBar(String text) {
+    final snackBar = SnackBar(
+      content: Text(text),
+      action: SnackBarAction(
+        label: 'Okay',
+        onPressed: Navigator.of(context).pop,
+      ),
+      duration: const Duration(seconds: 3),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Widget _buildSignInLabel() {
+    return TextButton(
+      onPressed: Navigator.of(context).pop,
+      child: Text(
+        'Have an Account? Sign In.',
+        style: TextStyle(
+          color: context.theme.mediumTextColor,
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 48),
+      child: Image.asset(
+        'assets/app_logo.png',
+        fit: BoxFit.contain,
+        height: 120.0,
+      ),
+    );
+  }
+
+  Widget _buildFullNameField() {
+    return Container(
+      margin: const EdgeInsets.only(top: 24),
+      child: TextFormField(
+        autofocus: false,
+        textCapitalization: TextCapitalization.words,
+        controller: _fullNameController,
+        validator: Validator.validateName,
+        style: TextStyle(
+          color: context.theme.mediumTextColor,
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: _inputDecoration(Icons.person, 'Full Name'),
+      ),
+    );
+  }
+
+  Widget _buildEmailField() {
+    return Container(
+      margin: const EdgeInsets.only(top: 24),
+      child: TextFormField(
+        keyboardType: TextInputType.emailAddress,
+        autofocus: false,
+        controller: _emailController,
+        style: TextStyle(
+          color: context.theme.mediumTextColor,
+          fontWeight: FontWeight.w500,
+        ),
+        validator: Validator.validateEmail,
+        decoration: _inputDecoration(Icons.email, 'Email'),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return Container(
+      margin: const EdgeInsets.only(top: 24),
+      child: TextFormField(
+        obscureText: true,
+        controller: _passwordController,
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          color: context.theme.mediumTextColor,
+        ),
+        validator: Validator.validatePassword,
+        decoration: _inputDecoration(Icons.lock, 'Password'),
+      ),
+    );
+  }
+
+  Container _buildSignUpButton() {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).primaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          padding: const EdgeInsets.all(12),
+        ),
+        onPressed: _emailSignUp,
+        child: const SizedBox(
+          width: 150,
+          child: Center(
+            child: Text(
+              'SIGN UP',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: context.theme.pageBackgroundColor,
+      body: Form(
+        key: _formKey,
+        autovalidateMode: _autoValidate,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 25, right: 25),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                _buildLogo(),
+                _buildFullNameField(),
+                _buildEmailField(),
+                _buildPasswordField(),
+                _buildSignUpButton(),
+                _buildSignInLabel()
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

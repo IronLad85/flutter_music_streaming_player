@@ -33,6 +33,22 @@ mixin _$AudioPlayerStore on _AudioPlayerStore, Store {
     });
   }
 
+  late final _$isTrackLoadingAtom =
+      Atom(name: '_AudioPlayerStore.isTrackLoading', context: context);
+
+  @override
+  bool get isTrackLoading {
+    _$isTrackLoadingAtom.reportRead();
+    return super.isTrackLoading;
+  }
+
+  @override
+  set isTrackLoading(bool value) {
+    _$isTrackLoadingAtom.reportWrite(value, super.isTrackLoading, () {
+      super.isTrackLoading = value;
+    });
+  }
+
   late final _$seekValueAtom =
       Atom(name: '_AudioPlayerStore.seekValue', context: context);
 
@@ -163,6 +179,14 @@ mixin _$AudioPlayerStore on _AudioPlayerStore, Store {
         () => super.setSeekValue(duration, isSeekingValue: isSeekingValue));
   }
 
+  late final _$clearCurrentTrackAsyncAction =
+      AsyncAction('_AudioPlayerStore.clearCurrentTrack', context: context);
+
+  @override
+  Future<void> clearCurrentTrack() {
+    return _$clearCurrentTrackAsyncAction.run(() => super.clearCurrentTrack());
+  }
+
   late final _$disposeAsyncAction =
       AsyncAction('_AudioPlayerStore.dispose', context: context);
 
@@ -171,10 +195,25 @@ mixin _$AudioPlayerStore on _AudioPlayerStore, Store {
     return _$disposeAsyncAction.run(() => super.dispose());
   }
 
+  late final _$_AudioPlayerStoreActionController =
+      ActionController(name: '_AudioPlayerStore', context: context);
+
+  @override
+  void setTrackLoadingStatus(bool value) {
+    final _$actionInfo = _$_AudioPlayerStoreActionController.startAction(
+        name: '_AudioPlayerStore.setTrackLoadingStatus');
+    try {
+      return super.setTrackLoadingStatus(value);
+    } finally {
+      _$_AudioPlayerStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''
 currentPlayingTrack: ${currentPlayingTrack},
+isTrackLoading: ${isTrackLoading},
 seekValue: ${seekValue},
 isSeeking: ${isSeeking},
 position: ${position},

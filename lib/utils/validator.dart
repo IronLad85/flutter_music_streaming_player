@@ -22,7 +22,7 @@ class Validator {
   static String? validateName(String? value) {
     String pattern = r"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$";
     RegExp regex = RegExp(pattern);
-    if (value != null && !regex.hasMatch(value)) {
+    if (value != null && !regex.hasMatch(value.trim())) {
       return 'Please enter a name.';
     } else {
       return null;

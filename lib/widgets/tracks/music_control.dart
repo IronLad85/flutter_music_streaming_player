@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:music_player/models/tracks.dart';
+import 'package:music_player/store/audio_player/audio_player_store.dart';
 import 'package:music_player/store/main_store.dart';
 import 'package:music_player/widgets/tracks/track_slider.dart';
-import 'package:sliding_up_panel2/sliding_up_panel2.dart';
+import 'package:music_player/widgets/util/curve_clipper.dart';
 
 class MusicControl extends StatelessWidget {
-  final PanelController panelController;
   final MainStore mainStore;
+  const MusicControl({super.key, required this.mainStore});
 
-  const MusicControl({
-    super.key,
-    required this.panelController,
-    required this.mainStore,
-  });
+  AudioPlayerStore get audioPlayerStore => mainStore.audioPlayerStore;
 
   String getRunningDuration(Duration duration) {
     String twoDigits(int n) {
@@ -44,13 +41,13 @@ class MusicControl extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => {},
+        onTap: audioPlayerStore.fastForwardTrack,
         splashColor: Colors.white60,
         customBorder: const CircleBorder(),
         child: Container(
           padding: const EdgeInsets.all(5),
           child: const Icon(
-            Icons.skip_next,
+            Icons.fast_forward,
             color: Colors.white,
             size: 40,
           ),
@@ -63,13 +60,13 @@ class MusicControl extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => {},
+        onTap: audioPlayerStore.fastRewindTrack,
         splashColor: Colors.white60,
         customBorder: const CircleBorder(),
         child: Container(
           padding: const EdgeInsets.all(5),
           child: const Icon(
-            Icons.skip_previous,
+            Icons.fast_rewind,
             color: Colors.white,
             size: 40,
           ),
@@ -80,16 +77,16 @@ class MusicControl extends StatelessWidget {
 
   Widget playPauseButtonBuilder() {
     return Observer(builder: (_) {
-      Track? track = mainStore.audioPlayerStore.currentPlayingTrack;
-      bool isPlaying = mainStore.audioPlayerStore.isPlaying;
+      Track? track = audioPlayerStore.currentPlayingTrack;
+      bool isPlaying = audioPlayerStore.isPlaying;
 
       return GestureDetector(
         onTap: () {
           if (track != null) {
             if (isPlaying) {
-              mainStore.audioPlayerStore.pause();
+              audioPlayerStore.pause();
             } else {
-              mainStore.audioPlayerStore.resume();
+              audioPlayerStore.resume();
             }
           }
         },
@@ -107,22 +104,39 @@ class MusicControl extends StatelessWidget {
             ],
           ),
           child: Center(
-            child: AnimatedCrossFade(
-              duration: const Duration(milliseconds: 200),
-              crossFadeState: isPlaying
-                  ? CrossFadeState.showFirst
-                  : CrossFadeState.showSecond,
-              firstChild: const Icon(
-                Icons.pause,
-                size: 50,
-                color: Colors.white,
-              ),
-              secondChild: const Icon(
-                Icons.play_arrow,
-                size: 50,
-                color: Colors.white,
-              ),
-            ),
+            child: Observer(builder: (context) {
+              bool isLoading = audioPlayerStore.isTrackLoading;
+              if (isLoading) {
+                return Container(
+                  padding: const EdgeInsets.all(10),
+                  child: const SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              }
+
+              return AnimatedCrossFade(
+                duration: const Duration(milliseconds: 200),
+                crossFadeState: isPlaying
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                firstChild: const Icon(
+                  Icons.pause,
+                  size: 50,
+                  color: Colors.white,
+                ),
+                secondChild: const Icon(
+                  Icons.play_arrow,
+                  size: 50,
+                  color: Colors.white,
+                ),
+              );
+            }),
           ),
         ),
       );
@@ -131,11 +145,10 @@ class MusicControl extends StatelessWidget {
 
   Widget songDurationTime() {
     return Observer(builder: (_) {
-      bool isPlaying = mainStore.audioPlayerStore.isPlaying;
-      Duration duration = mainStore.audioPlayerStore.duration;
+      Duration duration = audioPlayerStore.duration;
 
       return Text(
-        isPlaying ? getDuration(duration) : "0:00",
+        getDuration(duration),
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
@@ -150,7 +163,7 @@ class MusicControl extends StatelessWidget {
 
   Widget songPlayingTime() {
     return Observer(builder: (_) {
-      Duration position = mainStore.audioPlayerStore.position;
+      Duration position = audioPlayerStore.position;
 
       return Text(
         getRunningDuration(position),
@@ -213,25 +226,4 @@ class MusicControl extends StatelessWidget {
       ),
     );
   }
-}
-
-class CurveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    double heightOffset = 75;
-    var path = Path();
-    path.moveTo(0, heightOffset);
-    path.lineTo(0, size.height);
-    path.lineTo(size.width, size.height);
-    path.lineTo(size.width, heightOffset);
-    path.conicTo(size.width / 2, -heightOffset, 0, heightOffset, 0.9);
-
-    // path.quadraticBezierTo(size.width / 2, -(heightOffset), 0, heightOffset);
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }

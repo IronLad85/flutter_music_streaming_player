@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:mobx/mobx.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:music_player/models/tracks.dart';
+import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 
 part 'audio_player_store.g.dart';
 
@@ -14,11 +15,15 @@ abstract class _AudioPlayerStore with Store {
 
   AudioPlayer? _audioPlayer;
 
+  @observable
+  bool isTrackLoading = false;
+
   StreamSubscription<Duration>? _durationSubscription;
   StreamSubscription<Duration>? _positionSubscription;
   StreamSubscription<PlayerState>? _playerStateSubscription;
   StreamSubscription<void>? _completionSubscription;
   StreamSubscription<String>? _errorSubscription;
+  final PanelController panelController = PanelController();
 
   @observable
   Duration seekValue = Duration.zero;
@@ -40,20 +45,38 @@ abstract class _AudioPlayerStore with Store {
 
   AudioPlayer? get audioPlayer => _audioPlayer;
 
+  bool isPlayingCurrentTrack(Track? track) {
+    if (track == null || currentPlayingTrack == null) return false;
+
+    return track.id == currentPlayingTrack?.id;
+  }
+
+  @action
+  void setTrackLoadingStatus(bool value) {
+    isTrackLoading = value;
+  }
+
   @action
   Future play(Track track) async {
     currentPlayingTrack = track;
+    setTrackLoadingStatus(true);
 
     if (_audioPlayer == null) {
       await _initAudioPlayer();
     }
 
     await _audioPlayer!.play(UrlSource(track.audio));
+    setTrackLoadingStatus(false);
   }
 
   @action
   Future resume() async {
-    await _audioPlayer?.resume();
+    bool isTrackCompleted = position.inSeconds >= duration.inSeconds;
+    if (currentPlayingTrack != null && isTrackCompleted) {
+      await play(currentPlayingTrack!);
+    } else {
+      await _audioPlayer?.resume();
+    }
   }
 
   @action
@@ -67,15 +90,36 @@ abstract class _AudioPlayerStore with Store {
     position = Duration.zero;
   }
 
+  void fastRewindTrack() {
+    const int rewindMilliseconds = 10 * 1000;
+    final newPosition = position.inMilliseconds > rewindMilliseconds
+        ? position - const Duration(milliseconds: rewindMilliseconds)
+        : Duration.zero;
+
+    seek(newPosition);
+  }
+
+  void fastForwardTrack() {
+    const int skipMilliseconds = 10 * 1000;
+    if (duration.inMilliseconds - position.inMilliseconds > skipMilliseconds) {
+      var duration = position + const Duration(milliseconds: skipMilliseconds);
+      seek(duration);
+    } else {
+      seek(duration);
+    }
+  }
+
   @action
   Future seek(Duration newPosition) async {
     if (audioPlayer != null) {
       switch (playerState) {
         case PlayerState.completed:
+          setTrackLoadingStatus(true);
           await _audioPlayer?.play(
             UrlSource(currentPlayingTrack!.audio),
             position: newPosition,
           );
+          setTrackLoadingStatus(false);
 
         case PlayerState.playing:
           await _audioPlayer?.seek(newPosition);
@@ -93,8 +137,16 @@ abstract class _AudioPlayerStore with Store {
     Duration duration, {
     bool isSeekingValue = false,
   }) async {
-    isSeeking = isSeekingValue;
     seekValue = duration;
+    isSeeking = isSeekingValue;
+  }
+
+  @action
+  Future<void> clearCurrentTrack() async {
+    duration = Duration.zero;
+    position = Duration.zero;
+    seekValue = Duration.zero;
+    await _audioPlayer?.pause();
   }
 
   @action
@@ -105,11 +157,15 @@ abstract class _AudioPlayerStore with Store {
     await _completionSubscription?.cancel();
     await _errorSubscription?.cancel();
 
+    duration = Duration.zero;
+    position = Duration.zero;
+
     _durationSubscription = null;
     _positionSubscription = null;
     _playerStateSubscription = null;
     _completionSubscription = null;
     _errorSubscription = null;
+    currentPlayingTrack = null;
 
     await _audioPlayer?.dispose();
     _audioPlayer = null;

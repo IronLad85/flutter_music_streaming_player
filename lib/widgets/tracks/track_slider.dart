@@ -21,35 +21,46 @@ class TrackSlider extends StatelessWidget {
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 9),
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 14.0),
           ),
-          child: Slider(
-            min: 0,
-            max: trackDuration.inMilliseconds.toDouble(),
-            value: seekValue.inMilliseconds.toDouble(),
-            onChangeStart: (double value) {
-              mainStore.audioPlayerStore.setSeekValue(
-                Duration(milliseconds: value.toInt()),
-                isSeekingValue: true,
+          child: Builder(builder: (context) {
+            if (trackDuration.inSeconds <= 0) {
+              return Slider(
+                value: 0,
+                onChanged: (double value) {},
+                activeColor: Colors.white38,
+                inactiveColor: Colors.white12,
               );
-            },
-            onChanged: (double value) {
-              mainStore.audioPlayerStore.setSeekValue(
-                Duration(milliseconds: value.toInt()),
-                isSeekingValue: true,
-              );
-            },
-            onChangeEnd: (double value) async {
-              await mainStore.audioPlayerStore.seek(
-                Duration(milliseconds: value.toInt()),
-              );
+            }
 
-              mainStore.audioPlayerStore.setSeekValue(
-                Duration(milliseconds: value.toInt()),
-                isSeekingValue: false,
-              );
-            },
-            activeColor: Colors.white,
-            inactiveColor: Colors.white38,
-          ),
+            return Slider(
+              min: 0,
+              max: trackDuration.inMilliseconds.toDouble(),
+              value: seekValue.inMilliseconds.toDouble(),
+              onChangeStart: (double value) {
+                mainStore.audioPlayerStore.setSeekValue(
+                  Duration(milliseconds: value.toInt()),
+                  isSeekingValue: true,
+                );
+              },
+              onChanged: (double value) {
+                mainStore.audioPlayerStore.setSeekValue(
+                  Duration(milliseconds: value.toInt()),
+                  isSeekingValue: true,
+                );
+              },
+              onChangeEnd: (double value) async {
+                await mainStore.audioPlayerStore.seek(
+                  Duration(milliseconds: value.toInt()),
+                );
+
+                mainStore.audioPlayerStore.setSeekValue(
+                  Duration(milliseconds: value.toInt()),
+                  isSeekingValue: false,
+                );
+              },
+              activeColor: Colors.white,
+              inactiveColor: Colors.white38,
+            );
+          }),
         );
       },
     );
