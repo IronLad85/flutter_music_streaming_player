@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:music_player/services/auth_service.dart';
 import 'package:music_player/utils/theme_data.dart';
 import 'package:music_player/utils/validator.dart';
 
@@ -46,17 +47,16 @@ class _LoginPageState extends State<LoginPage> {
       try {
         SystemChannels.textInput.invokeMethod('TextInput.hide');
         _changeLoadingVisible();
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-        Navigator.pushReplacementNamed(context, '/home');
+        await AuthService().signInWithEmailAndPassword(email, password);
+        if (context.mounted) {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
       } on FirebaseAuthException catch (exception) {
-        _changeLoadingVisible();
         _showSnackBar(exception.message ?? _loginErrorMessage);
       } catch (e) {
-        _changeLoadingVisible();
         _showSnackBar(_loginErrorMessage);
+      } finally {
+        _changeLoadingVisible();
       }
     } else {
       setState(() => _autoValidate = AutovalidateMode.always);

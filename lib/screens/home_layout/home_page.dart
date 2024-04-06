@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:music_player/screens/home_layout/favorite_tracks_list.dart';
 import 'package:music_player/screens/home_layout/tracks_list.dart';
 import 'package:music_player/screens/profile/user_profile_page.dart';
+import 'package:music_player/store/main_store.dart';
 import 'package:music_player/utils/theme_data.dart';
 import 'package:music_player/widgets/search_bar.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -49,7 +51,8 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildSearchBar(BuildContext context) {
-    return const TrackSearchBar();
+    var mainStore = Provider.of<MainStore>(context, listen: false);
+    return TrackSearchBar(onSearch: mainStore.tracksStore.setSearchTerm);
   }
 
   Widget _buildTabBar(BuildContext context) {

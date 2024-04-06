@@ -84,8 +84,8 @@ class _TrackDetailsPageState extends State<TrackDetailsPage> {
           behavior: HitTestBehavior.opaque,
           onTap: () => onFavoriteToggle(!isFavorite),
           child: FavoriteIcon(
-            isFavorite: isFavorite,
             size: 32,
+            isFavorite: isFavorite,
           ),
         ),
       );
@@ -119,6 +119,19 @@ class _TrackDetailsPageState extends State<TrackDetailsPage> {
     );
   }
 
+  Widget _buildArtistName(String artistName) {
+    return Text(
+      "Artist: $artistName",
+      style: TextStyle(
+        fontSize: 18,
+        color: context.theme.lightTextColor.withOpacity(0.5),
+        letterSpacing: 0.5,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
   Widget _buildSongInfo() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -138,6 +151,7 @@ class _TrackDetailsPageState extends State<TrackDetailsPage> {
               child: _buildTrackName(track.name),
             ),
             _buildAlbumName(track.albumName),
+            _buildArtistName(track.artistName),
           ],
         );
       }),

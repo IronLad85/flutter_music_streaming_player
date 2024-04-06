@@ -9,6 +9,21 @@ part of 'tracks_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$TrackStore on _TracksStore, Store {
+  Computed<List<Track>>? _$filteredFavoritesComputed;
+
+  @override
+  List<Track> get filteredFavorites => (_$filteredFavoritesComputed ??=
+          Computed<List<Track>>(() => super.filteredFavorites,
+              name: '_TracksStore.filteredFavorites'))
+      .value;
+  Computed<List<Track>>? _$filteredTracksComputed;
+
+  @override
+  List<Track> get filteredTracks => (_$filteredTracksComputed ??=
+          Computed<List<Track>>(() => super.filteredTracks,
+              name: '_TracksStore.filteredTracks'))
+      .value;
+
   late final _$tracksAtom = Atom(name: '_TracksStore.tracks', context: context);
 
   @override
@@ -175,7 +190,9 @@ tracks: ${tracks},
 favoriteTracks: ${favoriteTracks},
 isLoading: ${isLoading},
 areFavoritesLoading: ${areFavoritesLoading},
-searchTerm: ${searchTerm}
+searchTerm: ${searchTerm},
+filteredFavorites: ${filteredFavorites},
+filteredTracks: ${filteredTracks}
     ''';
   }
 }
