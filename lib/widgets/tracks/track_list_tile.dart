@@ -35,7 +35,7 @@ class TrackListTile extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.grey.shade300,
+          color: Colors.grey.shade900,
         ),
         child: Hero(
           tag: track.id,

@@ -25,8 +25,6 @@ class _TracksListState extends State<TracksList> {
   void initState() {
     super.initState();
     mainStore = Provider.of<MainStore>(context, listen: false);
-
-    _fetchTracks(isInitialFetch: true);
     mainStore.tracksStore.pagingController.addPageRequestListener(
       pageRequestListener,
     );
