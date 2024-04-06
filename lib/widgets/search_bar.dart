@@ -12,11 +12,9 @@ class TrackSearchBar extends StatelessWidget {
       child: CupertinoSearchTextField(
         key: const Key('search-field'),
         autofocus: false,
-        style: TextStyle(
-          color: context.theme.mediumTextColor,
-        ),
         onChanged: onSearch,
         onSubmitted: onSearch,
+        style: TextStyle(color: context.theme.mediumTextColor),
       ),
     );
   }

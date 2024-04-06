@@ -37,21 +37,25 @@ class FavoriteTracksList extends StatelessWidget {
   Widget build(BuildContext context) {
     MainStore mainStore = Provider.of<MainStore>(context, listen: false);
 
-    return Observer(builder: (context) {
-      List<Track> tracks = mainStore.tracksStore.filteredFavorites;
+    return Observer(
+      builder: (context) {
+        List<Track> tracks = mainStore.tracksStore.filteredFavorites;
 
-      if (tracks.isEmpty) {
-        return _buildEmptyPlaceholder(context);
-      }
+        if (tracks.isEmpty) {
+          return _buildEmptyPlaceholder(context);
+        }
 
-      return ListView.builder(
-        itemCount: tracks.length,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 140),
-        itemBuilder: (context, index) {
-          return TrackListTile(track: tracks[index]);
-        },
-      );
-    });
+        return ListView.builder(
+          itemCount: tracks.length,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 140),
+          itemBuilder: (context, index) {
+            return TrackListTile(
+              track: tracks[index],
+            );
+          },
+        );
+      },
+    );
   }
 }

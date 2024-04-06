@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:music_player/models/tracks.dart';
 import 'package:music_player/screens/track/track_details_page.dart';
@@ -12,16 +13,20 @@ class TrackListTile extends StatelessWidget {
     return TrackFavoriteButton(track: track);
   }
 
-  void _playAudioTrack(BuildContext context) {
-    FocusScope.of(context).unfocus();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) {
-          return TrackDetailsPage(track: track);
-        },
-      ),
-    );
+  Future<void> _playAudioTrack(BuildContext context) async {
+    FocusScope.of(context).requestFocus(FocusNode());
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (context.mounted) {
+      await Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (_) {
+            return TrackDetailsPage(track: track);
+          },
+        ),
+      );
+    }
   }
 
   Widget _buildTrackImage() {
@@ -32,7 +37,7 @@ class TrackListTile extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: Container(
-            color: Colors.grey.shade300,
+            color: Colors.transparent,
             child: Builder(builder: (context) {
               if (track.albumImage == null) {
                 return Container();
@@ -84,7 +89,9 @@ class TrackListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => _playAudioTrack(context),
+      onTap: () {
+        _playAudioTrack(context);
+      },
       child: Padding(
         padding: const EdgeInsets.only(top: 20),
         child: Row(
