@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:music_player/models/tracks.dart';
@@ -18,19 +19,71 @@ class TracksList extends StatefulWidget {
 
 class _TracksListState extends State<TracksList> {
   late MainStore mainStore;
+  bool isOfflineAtLaunch = false;
 
   @override
   void initState() {
     super.initState();
     mainStore = Provider.of<MainStore>(context, listen: false);
 
-    _fetchTracks();
-    mainStore.tracksStore.pagingController.addPageRequestListener((pageKey) {
-      _fetchTracks();
-    });
+    _fetchTracks(isInitialFetch: true);
+    mainStore.tracksStore.pagingController.addPageRequestListener(
+      pageRequestListener,
+    );
   }
 
-  Future<void> _fetchTracks() async {
+  void pageRequestListener(int pageKey) {
+    _fetchTracks();
+  }
+
+  @override
+  void dispose() {
+    mainStore.tracksStore.pagingController.removePageRequestListener(
+      pageRequestListener,
+    );
+    super.dispose();
+  }
+
+  Future<bool> _checkInternetConnectivity() async {
+    var result = await Connectivity().checkConnectivity();
+    if (result == ConnectivityResult.mobile ||
+        result == ConnectivityResult.wifi) {
+      return true;
+    }
+
+    return false;
+  }
+
+  Widget _buildOfflinelaceholder() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.wifi_tethering_off_outlined,
+            size: 45,
+            color: context.theme.lightTextColor,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'You are offline',
+            style: TextStyle(
+              fontSize: 22,
+              color: context.theme.lightTextColor,
+            ),
+          ),
+          const SizedBox(height: 80),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _fetchTracks({bool isInitialFetch = false}) async {
+    if (isInitialFetch) {
+      bool hasConnection = await _checkInternetConnectivity();
+      setState(() => isOfflineAtLaunch = !hasConnection);
+    }
+
     int itemsCount = mainStore.tracksStore.tracks.length;
     await MusicService.instance.fetchTracks(offset: itemsCount);
     await FavoritesService.instance.fetchAllFavorites();
@@ -78,27 +131,33 @@ class _TracksListState extends State<TracksList> {
     return SafeArea(
       child: Container(
         color: context.theme.pageBackgroundColor,
-        child: Observer(
-          builder: (context) {
-            String searchTerm = mainStore.tracksStore.searchTerm;
+        child: Builder(builder: (context) {
+          return Observer(
+            builder: (context) {
+              String searchTerm = mainStore.tracksStore.searchTerm;
 
-            bool areTracksLoading = mainStore.tracksStore.isLoading;
-            bool areFavLoading = mainStore.tracksStore.areFavoritesLoading;
-            bool isLoading = areTracksLoading || areFavLoading;
+              bool areTracksLoading = mainStore.tracksStore.isLoading;
+              bool areFavLoading = mainStore.tracksStore.areFavoritesLoading;
+              bool isLoading = areTracksLoading || areFavLoading;
 
-            if (isLoading && mainStore.tracksStore.tracks.isEmpty) {
-              return _buildLoadingIndicator();
-            }
+              if (isOfflineAtLaunch) {
+                return _buildOfflinelaceholder();
+              }
 
-            if (searchTerm.isNotEmpty) {
-              return _buildSearchResults();
-            }
+              if (isLoading && mainStore.tracksStore.tracks.isEmpty) {
+                return _buildLoadingIndicator();
+              }
 
-            return _buildPaginatedListView(
-              mainStore.tracksStore.pagingController,
-            );
-          },
-        ),
+              if (searchTerm.isNotEmpty) {
+                return _buildSearchResults();
+              }
+
+              return _buildPaginatedListView(
+                mainStore.tracksStore.pagingController,
+              );
+            },
+          );
+        }),
       ),
     );
   }

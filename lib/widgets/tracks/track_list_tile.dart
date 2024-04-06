@@ -32,23 +32,29 @@ class TrackListTile extends StatelessWidget {
   Widget _buildTrackImage() {
     return Padding(
       padding: const EdgeInsets.only(left: 25, right: 30),
-      child: Hero(
-        tag: track.id,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            color: Colors.transparent,
-            child: Builder(builder: (context) {
-              if (track.albumImage == null) {
-                return Container();
-              }
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.grey.shade300,
+        ),
+        child: Hero(
+          tag: track.id,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              color: Colors.transparent,
+              child: Builder(builder: (context) {
+                if (track.albumImage == null) {
+                  return Container();
+                }
 
-              return Image.network(
-                track.albumImage!,
-                width: 70,
-                height: 70,
-              );
-            }),
+                return Image.network(
+                  track.albumImage!,
+                  width: 70,
+                  height: 70,
+                );
+              }),
+            ),
           ),
         ),
       ),
