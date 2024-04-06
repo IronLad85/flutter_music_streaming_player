@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
     return Provider<MainStore>(
       create: (_) => MainStore(),
       child: ThemeProvider(
-        defaultThemeId: themeName,
+        defaultThemeId: currentTheme ?? themeName,
         themes: appThemes,
         child: ThemeConsumer(
           child: Builder(

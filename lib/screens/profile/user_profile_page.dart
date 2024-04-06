@@ -16,14 +16,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
   bool isDarkMode = false;
   bool isLoggingOut = false;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void logoutUser() async {
-    setState(() => isLoggingOut = true);
+  Future<void> logoutUser() async {
     try {
+      setState(() => isLoggingOut = true);
       var mainStore = Provider.of<MainStore>(context, listen: false);
       await mainStore.audioPlayerStore.dispose();
       await FirebaseAuth.instance.signOut();
@@ -40,11 +35,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
     return AppBar(
       backgroundColor: context.theme.pageBackgroundColor,
       leading: IconButton(
+        onPressed: () => Navigator.pop(context),
         icon: Icon(
           Icons.arrow_back,
           color: context.theme.mediumTextColor,
         ),
-        onPressed: () => Navigator.pop(context),
       ),
       title: Text(
         'Profile',
@@ -90,11 +85,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
           onChanged: (value) {
             setState(() {
               isDarkMode = value;
+
               if (isDarkMode) {
-                ThemeProvider.controllerOf(context).setTheme('dark_theme');
+                currentTheme = 'dark_theme';
               } else {
-                ThemeProvider.controllerOf(context).setTheme('light_theme');
+                currentTheme = 'light_theme';
               }
+
+              ThemeProvider.controllerOf(context).setTheme(currentTheme!);
             });
           },
         ),

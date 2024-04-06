@@ -46,6 +46,8 @@ class FavoriteTracksList extends StatelessWidget {
 
       return ListView.builder(
         itemCount: tracks.length,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 140),
         itemBuilder: (context, index) {
           return TrackListTile(track: tracks[index]);
         },

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:theme_provider/theme_provider.dart';
 
+String? currentTheme;
+
 List<AppTheme> appThemes = [
   AppTheme(
     id: "light_theme",

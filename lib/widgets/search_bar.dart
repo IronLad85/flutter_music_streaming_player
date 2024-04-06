@@ -11,6 +11,7 @@ class TrackSearchBar extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 10),
       child: CupertinoSearchTextField(
         key: const Key('search-field'),
+        autofocus: false,
         style: TextStyle(
           color: context.theme.mediumTextColor,
         ),
