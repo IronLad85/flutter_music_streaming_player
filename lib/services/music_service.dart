@@ -59,11 +59,6 @@ class MusicService {
       );
 
       List<Track> list = (data['results'] as List? ?? []).map((trackData) {
-        (trackData as Map<String, dynamic>)['waveform'] = '';
-        JsonEncoder encoder = new JsonEncoder.withIndent('  ');
-        String prettyprint = encoder.convert(trackData);
-        print(prettyprint);
-
         return Track.fromJson(trackData);
       }).toList();
 

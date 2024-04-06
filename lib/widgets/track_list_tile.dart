@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:music_player/models/tracks.dart';
 import 'package:music_player/screens/track/track_details_page.dart';
-import 'package:music_player/store/main_store.dart';
 import 'package:music_player/utils/theme_data.dart';
 import 'package:music_player/widgets/tracks/favorite_button.dart';
-import 'package:provider/provider.dart';
 
 class TrackListTile extends StatelessWidget {
   final Track track;
   const TrackListTile({super.key, required this.track});
 
   Widget _buildFavoriteIcon(BuildContext context) {
-    return Builder(builder: (context) {
-      MainStore mainStore = Provider.of<MainStore>(context, listen: false);
-      bool isFavorite = mainStore.tracksStore.isFavoriteTrack(track.id);
-      return TrackFavoriteButton(track: track, isFavorite: isFavorite);
-    });
+    return TrackFavoriteButton(track: track);
   }
 
-  _playAudioTrack(BuildContext context) {
+  void _playAudioTrack(BuildContext context) {
+    FocusScope.of(context).unfocus();
     Navigator.push(
       context,
       MaterialPageRoute(

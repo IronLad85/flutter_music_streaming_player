@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:music_player/store/main_store.dart';
 import 'package:music_player/utils/theme_data.dart';
+import 'package:provider/provider.dart';
 import 'package:theme_provider/theme_provider.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -12,6 +14,7 @@ class UserProfilePage extends StatefulWidget {
 
 class _UserProfilePageState extends State<UserProfilePage> {
   bool isDarkMode = false;
+  bool isLoggingOut = false;
 
   @override
   void initState() {
@@ -19,10 +22,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   void logoutUser() async {
-    await FirebaseAuth.instance.signOut();
-    if (mounted) {
-      Navigator.popUntil(context, (route) => route.isFirst);
-      Navigator.pushReplacementNamed(context, '/');
+    setState(() => isLoggingOut = true);
+    try {
+      var mainStore = Provider.of<MainStore>(context, listen: false);
+      await mainStore.audioPlayerStore.dispose();
+      await FirebaseAuth.instance.signOut();
+      if (mounted) {
+        Navigator.popUntil(context, (route) => route.isFirst);
+        Navigator.pushReplacementNamed(context, '/');
+      }
+    } finally {
+      setState(() => isLoggingOut = false);
     }
   }
 
@@ -97,12 +107,25 @@ class _UserProfilePageState extends State<UserProfilePage> {
       margin: const EdgeInsets.only(top: 20),
       child: ElevatedButton(
         onPressed: logoutUser,
-        child: const Padding(
-          padding: EdgeInsets.all(10),
-          child: Text(
-            'Logout',
-            style: TextStyle(fontSize: 18),
-          ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Builder(builder: (context) {
+            if (isLoggingOut) {
+              return SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  color: context.theme.mediumTextColor,
+                  strokeWidth: 2,
+                ),
+              );
+            }
+
+            return const Text(
+              'Logout',
+              style: TextStyle(fontSize: 18),
+            );
+          }),
         ),
       ),
     );

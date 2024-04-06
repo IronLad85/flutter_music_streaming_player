@@ -45,8 +45,8 @@ class _LoginPageState extends State<LoginPage> {
   }) async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        SystemChannels.textInput.invokeMethod('TextInput.hide');
         _changeLoadingVisible();
+        FocusScope.of(context).unfocus();
         await AuthService().signInWithEmailAndPassword(email, password);
         if (context.mounted) {
           Navigator.pushReplacementNamed(context, '/home');
