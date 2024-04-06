@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:music_player/utils/theme_data.dart';
-import 'package:music_player/widgets/search_bar.dart';
+import 'package:music_player/widgets/common/search_bar.dart';
 import 'package:theme_provider/theme_provider.dart';
 
 void main() {

@@ -5,7 +5,7 @@ import 'package:music_player/screens/track/tracks_list.dart';
 import 'package:music_player/screens/profile/user_profile_page.dart';
 import 'package:music_player/store/main_store.dart';
 import 'package:music_player/utils/theme_data.dart';
-import 'package:music_player/widgets/search_bar.dart';
+import 'package:music_player/widgets/common/search_bar.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {

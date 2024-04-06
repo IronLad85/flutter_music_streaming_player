@@ -3,7 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:music_player/models/tracks.dart';
 import 'package:music_player/store/main_store.dart';
 import 'package:music_player/utils/theme_data.dart';
-import 'package:music_player/widgets/track_list_tile.dart';
+import 'package:music_player/widgets/tracks/track_list_tile.dart';
 import 'package:provider/provider.dart';
 
 class FavoriteTracksList extends StatelessWidget {

@@ -9,7 +9,7 @@ import 'package:music_player/services/favorite_service.dart';
 import 'package:music_player/services/music_service.dart';
 import 'package:music_player/store/main_store.dart';
 import 'package:music_player/utils/theme_data.dart';
-import 'package:music_player/widgets/bottom_panel.dart';
+import 'package:music_player/widgets/common/bottom_panel.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 
