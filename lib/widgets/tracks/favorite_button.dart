@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:music_player/models/tracks.dart';
 import 'package:music_player/services/favorite_service.dart';
 import 'package:music_player/store/main_store.dart';
@@ -40,20 +39,18 @@ class _TrackFavoriteButtonState extends State<TrackFavoriteButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (context) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => onFavoriteToggle(!widget.isFavorite),
-        child: Container(
-          padding: const EdgeInsets.only(
-            top: 5,
-            left: 10,
-            bottom: 5,
-            right: 15,
-          ),
-          child: FavoriteIcon(isFavorite: widget.isFavorite),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => onFavoriteToggle(!widget.isFavorite),
+      child: Container(
+        padding: const EdgeInsets.only(
+          top: 5,
+          left: 10,
+          bottom: 5,
+          right: 15,
         ),
-      );
-    });
+        child: FavoriteIcon(isFavorite: widget.isFavorite),
+      ),
+    );
   }
 }

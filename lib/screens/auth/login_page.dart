@@ -132,27 +132,27 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(24),
           ),
         ),
-        child: const SizedBox(
+        child: SizedBox(
           width: 150,
           child: Center(
-            child: Text(
-              'LOGIN',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+            child: Builder(builder: (context) {
+              if (_loadingVisible) {
+                return SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(
+                    color: context.theme.mediumTextColor,
+                    strokeWidth: 2,
+                  ),
+                );
+              }
 
-  Widget _buildForgotPasswordLabel() {
-    return TextButton(
-      onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
-      child: Text(
-        'Forgot password?',
-        style: TextStyle(
-          fontSize: 16,
-          color: context.theme.lightTextColor,
+              return const Text(
+                'LOGIN',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              );
+            }),
+          ),
         ),
       ),
     );
@@ -187,7 +187,6 @@ class _LoginPageState extends State<LoginPage> {
               _buildEmailField(),
               _buildPasswordField(),
               _buildLoginButton(),
-              _buildForgotPasswordLabel(),
               _buildSignUpLabel()
             ],
           ),
